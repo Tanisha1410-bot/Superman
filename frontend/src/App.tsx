@@ -9,7 +9,8 @@ import { Kbd } from "./components/Kbd";
 import type { CalendarEvent, EmailItem } from "./types";
 
 // Swap for your real auth/session value once Corsair OAuth is wired in.
-const USER_ID = "demo-user";
+// Swap for your real auth/session value once Corsair OAuth is wired in.
+const USER_ID = "11111111-1111-1111-1111-111111111111";
 
 export default function App() {
   const [emails, setEmails] = useState<EmailItem[]>([]);
@@ -62,9 +63,8 @@ export default function App() {
         <div className="flex items-center gap-3">
           <span className="font-display text-lg font-semibold text-mist-50">Corsair</span>
           <span
-            className={`h-1.5 w-1.5 rounded-full ${
-              wsState === "open" ? "bg-moss-400" : "bg-amber-400"
-            }`}
+            className={`h-1.5 w-1.5 rounded-full ${wsState === "open" ? "bg-moss-400" : "bg-amber-400"
+              }`}
             title={wsState === "open" ? "Realtime connected" : "Realtime not wired up yet"}
           />
         </div>

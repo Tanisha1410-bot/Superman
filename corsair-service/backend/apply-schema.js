@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const client = new Client({
-    connectionString: 'postgresql://corsair_superhuman_db_user:2C5obTdeGryourcJ8V2WOyBRR9SZFroE@dpg-d9qqit942hec73erna60-a.singapore-postgres.render.com/corsair_superhuman_db',
+    connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
 });
 

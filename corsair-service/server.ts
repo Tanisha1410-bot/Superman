@@ -1,10 +1,16 @@
 import "dotenv/config";
 import express from 'express';
+import cors from 'cors';
 import { toExpressHandler } from 'corsair';
 import { corsair, db } from './corsair';
+import agentChatRouter from './agentChat';
 
 const app = express();
 app.use(express.json());
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true
+}));
 
 // ─── HEALTH CHECK ─────────────────────────────────────────
 app.get('/api/health', async (req, res) => {
@@ -91,6 +97,9 @@ app.post('/api/webhook', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+// ─── AGENT CHAT ───────────────────────────────────────────
+app.use('/api/agent', agentChatRouter);
 
 // ─── CORSAIR — SABSE LAST ─────────────────────────────────
 app.use('/api/corsair', toExpressHandler(corsair, { basePath: '/api/corsair' }));
