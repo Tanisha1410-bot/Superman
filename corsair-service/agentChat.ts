@@ -17,6 +17,13 @@ Rules:
 - Always resolve ambiguous recipients/times against context before acting (e.g.
   "next Thursday 9 AM" -> resolve to an exact ISO datetime). Today's date and the
   user's timezone are provided in the user message context.
+- The user's own email address is provided in the context as "User's email". When
+  the user says "myself", "me", or "my email", use that exact address as the
+  recipient -- never invent a placeholder like user@example.com.
+- If the user refers to someone by first name (e.g. "email Aditi"), check the
+  "Known contacts" list in the context and use that exact email address. If the
+  name isn't in the known contacts list, ask the user for their email address
+  instead of guessing one.
 - If a single prompt implies multiple actions, call multiple tools in the same turn
   and summarize all results together.
 - Never call a tool without all required fields resolved -- ask a clarifying
@@ -63,10 +70,6 @@ const TOOLS: Groq.Chat.Completions.ChatCompletionTool[] = [
     },
 ];
 
-// Single-tenant mode: corsair.ts does NOT set multiTenancy: true, so plugins are
-// called directly on the `corsair` instance -- no `.withTenant()` wrapper exists
-// on this client type. If you later flip to multi-tenant, swap these back to
-// `corsair.withTenant(tenantId).gmail...` / `.googlecalendar...`.
 // Base64url-encodes a string per Gmail API requirements (RFC 2822 raw message).
 function base64UrlEncode(str: string): string {
     return Buffer.from(str, 'utf-8')
@@ -79,29 +82,30 @@ function base64UrlEncode(str: string): string {
 async function runTool(name: string, args: any) {
     if (name === 'send_email') {
         const mime =
+            `From: ${process.env.USER_EMAIL || ''}\r\n` +
             `To: ${args.to}\r\n` +
             `Subject: ${args.subject}\r\n` +
             `Content-Type: text/plain; charset="UTF-8"\r\n` +
             `\r\n` +
             `${args.body}`;
-
         const raw = base64UrlEncode(mime);
 
-        await (corsair as any).gmail.api.messages.send({
-            raw,
-        });
+        await (corsair as any).gmail.messages.send({ raw });
+
         return { status: 'sent', to: args.to, subject: args.subject };
     }
 
     if (name === 'create_event') {
-        await (corsair as any).googlecalendar.api.events.create({
-            event: {
+        await (corsair as any).googlecalendar.events.insert({
+            calendarId: 'primary',
+            requestBody: {
                 summary: args.title,
                 start: { dateTime: args.startTime },
                 end: { dateTime: args.endTime },
                 attendees: (args.attendees || []).map((email: string) => ({ email })),
             },
         });
+
         return { status: 'created', title: args.title, startTime: args.startTime };
     }
 
@@ -116,9 +120,28 @@ router.post('/chat', async (req, res) => {
 
     try {
         const now = new Date().toISOString();
+        const userEmail = process.env.USER_EMAIL || 'unknown@example.com';
+
+        // Parses KNOWN_CONTACTS="Name:email,Name2:email2" into a readable list
+        // for the prompt, so the agent resolves names to real addresses instead
+        // of inventing placeholders like user@example.com.
+        const contactsRaw = process.env.KNOWN_CONTACTS || '';
+        const contacts = contactsRaw
+            .split(',')
+            .map((pair) => pair.trim())
+            .filter(Boolean)
+            .map((pair) => {
+                const [name, email] = pair.split(':').map((s) => s.trim());
+                return `${name} = ${email}`;
+            })
+            .join('\n');
+
         const messages: Groq.Chat.Completions.ChatCompletionMessageParam[] = [
             { role: 'system', content: SYSTEM_PROMPT },
-            { role: 'user', content: `Current datetime: ${now}\n\nUser request: ${prompt}` },
+            {
+                role: 'user',
+                content: `Current datetime: ${now}\nUser's email: ${userEmail}${contacts ? `\nKnown contacts:\n${contacts}` : ''}\n\nUser request: ${prompt}`,
+            },
         ];
 
         const first = await groq.chat.completions.create({
@@ -132,8 +155,8 @@ router.post('/chat', async (req, res) => {
         const toolCalls = choice.tool_calls;
 
         // No proper tool_calls from Groq -- check if it leaked a tool call as text instead
-        // (known Groq/Llama quirk: writes <function/name{...}></function> in content
-        // instead of populating the tool_calls field).
+        // (known Groq/Llama quirk: writes <function=name{...}> in content instead of
+        // populating the tool_calls field, sometimes without a closing tag).
         if (!toolCalls || toolCalls.length === 0) {
             const fallback = choice.content ? parseFallbackToolCall(choice.content) : null;
 

@@ -3,7 +3,7 @@ import { corsair } from "./corsair";
 
 async function main() {
     const { connectUrl } = await corsair.manage.connect.createLink({
-        plugin: "gmail",
+        plugin: "googlecalendar",
         tenantId: "tiya-default",
     });
 

@@ -4,9 +4,14 @@ interface ParsedToolCall {
 }
 
 export function parseFallbackToolCall(text: string): ParsedToolCall | null {
+    // Handles all observed Groq/Llama text-leak formats:
+    //   <function/name{...}></function>
+    //   <function=name{...}></function>
+    //   <function=name {...}>              <- no closing tag, space before JSON
+    //   <function name>{...}</function>
     const patterns = [
-        /<function[=\/]([a-zA-Z_]+)>?\s*(\{[\s\S]*?\})\s*<\/function>/,
-        /<function\s+([a-zA-Z_]+)\s*>\s*(\{[\s\S]*?\})\s*<\/function>/,
+        /<function[=\/]\s*([a-zA-Z_]+)\s*(\{[\s\S]*?\})\s*(?:<\/function>)?/,
+        /<function\s+([a-zA-Z_]+)\s*>\s*(\{[\s\S]*?\})\s*(?:<\/function>)?/,
     ];
 
     for (const pattern of patterns) {
