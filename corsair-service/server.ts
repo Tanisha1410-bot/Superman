@@ -1,4 +1,17 @@
 import "dotenv/config";
+
+process.on('unhandledRejection', (reason) => {
+    console.error('\n🔴 UNHANDLED REJECTION — this is likely why the server is dying:');
+    console.error(reason);
+});
+process.on('uncaughtException', (err) => {
+    console.error('\n🔴 UNCAUGHT EXCEPTION — this is likely why the server is dying:');
+    console.error(err);
+});
+process.on('exit', (code) => {
+    console.error(`\n🔴 PROCESS EXIT with code ${code} — server is shutting down now.`);
+});
+
 import express from 'express';
 import cors from 'cors';
 import { toExpressHandler } from 'corsair';

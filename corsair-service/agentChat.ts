@@ -90,13 +90,13 @@ async function runTool(name: string, args: any) {
             `${args.body}`;
         const raw = base64UrlEncode(mime);
 
-        await (corsair as any).gmail.messages.send({ raw });
+        await (corsair as any).gmail.api.messages.send({ raw });
 
         return { status: 'sent', to: args.to, subject: args.subject };
     }
 
     if (name === 'create_event') {
-        await (corsair as any).googlecalendar.events.insert({
+        await (corsair as any).googlecalendar.api.events.insert({
             calendarId: 'primary',
             requestBody: {
                 summary: args.title,
@@ -148,7 +148,7 @@ router.post('/chat', async (req, res) => {
             model: 'llama-3.3-70b-versatile',
             messages,
             tools: TOOLS,
-            tool_choice: 'auto',
+            tool_choice: 'required',
         });
 
         const choice = first.choices[0].message;
