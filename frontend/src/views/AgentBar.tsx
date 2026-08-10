@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+<<<<<<< HEAD
 import { cancelAgentAction, confirmAgentAction, fetchContacts, sendAgentMessage } from "../api/client";
 import type { AgentMessage } from "../types";
 import { Kbd } from "../components/Kbd";
@@ -121,6 +122,11 @@ function ConfirmationCard({ actionId, tool, args, onResolved }: ConfirmationCard
     </div>
   );
 }
+=======
+import { sendAgentMessage } from "../api/client";
+import type { AgentMessage } from "../types";
+import { Kbd } from "../components/Kbd";
+>>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
 
 interface AgentBarProps {
   open: boolean;
@@ -133,6 +139,7 @@ export function AgentBar({ open, onClose, userId }: AgentBarProps) {
   const [prompt, setPrompt] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+<<<<<<< HEAD
   const [pendingActionCards, setPendingActionCards] = useState<PendingActionItem[]>([]);
 
   const [isListening, setIsListening] = useState(false);
@@ -150,11 +157,15 @@ export function AgentBar({ open, onClose, userId }: AgentBarProps) {
       })
       .catch((err) => console.warn("Could not load contacts for voice correction:", err));
   }, []);
+=======
+  const inputRef = useRef<HTMLInputElement>(null);
+>>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
 
   useEffect(() => {
     if (open) inputRef.current?.focus();
   }, [open]);
 
+<<<<<<< HEAD
   // Web Speech API initialization
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -207,16 +218,23 @@ export function AgentBar({ open, onClose, userId }: AgentBarProps) {
   const handleActionResolved = (actionId: string) => {
     setPendingActionCards((prev) => prev.filter((item) => item.actionId !== actionId));
   };
+=======
+  if (!open) return null;
+>>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const trimmed = prompt.trim();
+<<<<<<< HEAD
     if (!trimmed || sending || pendingActionCards.length > 0) return;
 
     if (isListening && recognitionRef.current) {
       recognitionRef.current.stop();
       setIsListening(false);
     }
+=======
+    if (!trimmed || sending) return;
+>>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
 
     const userMessage: AgentMessage = {
       id: crypto.randomUUID(),
@@ -230,11 +248,16 @@ export function AgentBar({ open, onClose, userId }: AgentBarProps) {
     setError(null);
 
     try {
+<<<<<<< HEAD
       const res = await sendAgentMessage(trimmed, userId);
       setMessages((prev) => [...prev, res.reply]);
       if (res.pending_actions && res.pending_actions.length > 0) {
         setPendingActionCards((prev) => [...prev, ...res.pending_actions!]);
       }
+=======
+      const { reply } = await sendAgentMessage(trimmed, userId);
+      setMessages((prev) => [...prev, reply]);
+>>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
     } catch {
       setError("The agent didn't respond. Check the backend and try again.");
     } finally {
@@ -242,6 +265,7 @@ export function AgentBar({ open, onClose, userId }: AgentBarProps) {
     }
   }
 
+<<<<<<< HEAD
   const hasUnresolvedActions = pendingActionCards.length > 0;
 
   return (
@@ -329,3 +353,47 @@ export function AgentBar({ open, onClose, userId }: AgentBarProps) {
 
 
 
+=======
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center bg-ink-950/70 pt-24"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-xl overflow-hidden rounded-xl border border-ink-600 bg-ink-800 shadow-2xl"
+      >
+        {messages.length > 0 && (
+          <div className="max-h-80 space-y-3 overflow-y-auto border-b border-ink-700 p-4">
+            {messages.map((m) => (
+              <div
+                key={m.id}
+                className={`text-sm ${m.role === "user" ? "text-mist-50" : "text-cobalt-400"}`}
+              >
+                <span className="mr-2 font-mono text-xs text-mist-600">
+                  {m.role === "user" ? ">" : "agent"}
+                </span>
+                {m.content}
+              </div>
+            ))}
+            {error && <p className="text-sm text-amber-400">{error}</p>}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="flex items-center gap-2 px-4 py-3">
+          <span className="font-mono text-cobalt-400">›</span>
+          <input
+            ref={inputRef}
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            disabled={sending}
+            placeholder="Email Aditi confirming and put a 30-min call on my calendar Thursday 10am"
+            className="flex-1 bg-transparent font-mono text-sm text-mist-50 placeholder:text-mist-600 focus:outline-none"
+          />
+          <Kbd keys={["esc"]} />
+        </form>
+      </div>
+    </div>
+  );
+}
+>>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961

@@ -30,6 +30,7 @@
     transition-duration: 0.001ms !important;
   }
 }
+<<<<<<< HEAD
 
 /* ---------------------------------------------------------------------- */
 /*  Landing page (Chrono hero) animations                                  */
@@ -121,3 +122,5 @@
   animation: hero-fade-in 0.6s ease-out forwards;
   animation-delay: inherit;
 }
+=======
+>>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961

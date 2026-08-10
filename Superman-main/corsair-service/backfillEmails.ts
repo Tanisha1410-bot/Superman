@@ -6,23 +6,6 @@ function getHeader(headers: { name?: string; value?: string }[] | undefined, nam
     return headers?.find((h) => h.name?.toLowerCase() === name.toLowerCase())?.value || "";
 }
 
-<<<<<<< HEAD
-export function mapLabelIdsToCategory(labelIds: string[] | undefined | null): string {
-    if (!labelIds || labelIds.length === 0) return "INBOX";
-    if (labelIds.includes("SPAM")) return "SPAM";
-    if (labelIds.includes("TRASH")) return "TRASH";
-    if (labelIds.includes("DRAFT")) return "DRAFT";
-    if (labelIds.includes("SENT")) return "SENT";
-    if (labelIds.includes("CATEGORY_PROMOTIONS")) return "CATEGORY_PROMOTIONS";
-    if (labelIds.includes("CATEGORY_SOCIAL")) return "CATEGORY_SOCIAL";
-    if (labelIds.includes("CATEGORY_UPDATES")) return "CATEGORY_UPDATES";
-    if (labelIds.includes("CATEGORY_FORUMS")) return "CATEGORY_FORUMS";
-    if (labelIds.includes("INBOX")) return "INBOX";
-    return "INBOX";
-}
-
-=======
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
 async function main() {
     const maxResults = Number(process.argv[2]) || 20;
 
@@ -50,16 +33,6 @@ async function main() {
         const dateHeader = getHeader(headers, "Date");
         const receivedAt = dateHeader ? new Date(dateHeader) : new Date();
         const body = full?.snippet || "";
-<<<<<<< HEAD
-        const category = mapLabelIdsToCategory(full?.labelIds);
-
-        await db.query(
-            `INSERT INTO emails (gmail_message_id, thread_id, sender, subject, body, received_at, category)
-             VALUES ($1, $2, $3, $4, $5, $6, $7)
-             ON CONFLICT (gmail_message_id) DO UPDATE
-             SET sender = EXCLUDED.sender, subject = EXCLUDED.subject, body = EXCLUDED.body, received_at = EXCLUDED.received_at, category = EXCLUDED.category`,
-            [full?.id, full?.threadId, sender, subject, body, receivedAt, category]
-=======
 
         await db.query(
             `INSERT INTO emails (gmail_message_id, thread_id, sender, subject, body, received_at)
@@ -67,7 +40,6 @@ async function main() {
              ON CONFLICT (gmail_message_id) DO UPDATE
              SET sender = EXCLUDED.sender, subject = EXCLUDED.subject, body = EXCLUDED.body, received_at = EXCLUDED.received_at`,
             [full?.id, full?.threadId, sender, subject, body, receivedAt]
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
         );
         inserted++;
         console.log(`  saved: ${subject || "(no subject)"} — from ${sender}`);

@@ -29,20 +29,6 @@ export default {
         moss: {
           400: "#5FBF8F",
         },
-<<<<<<< HEAD
-        // Design tokens used by the Vercel/v0 "Chrono" landing page (Landing.tsx),
-        // mapped onto the same dark palette as the rest of the app.
-        background: "#0B0E14",
-        foreground: "#E6E9EF",
-        card: "#131722",
-        border: "#232838",
-        primary: {
-          DEFAULT: "#2563EB",
-          foreground: "#F8FAFC",
-        },
-        "muted-foreground": "#7C8496",
-=======
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
       },
       fontFamily: {
         display: ["Space Grotesk", "system-ui", "sans-serif"],

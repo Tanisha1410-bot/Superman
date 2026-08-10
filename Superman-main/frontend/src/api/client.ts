@@ -27,40 +27,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-<<<<<<< HEAD
-export interface FetchEmailsResponse {
-  emails: EmailItem[];
-  hasMore: boolean;
-  nextCursor: string | null;
-  counts: Record<string, number>;
-}
-
-// GET /api/emails — server.ts supports category filter, cursor pagination, and counts.
-export async function fetchEmails(category?: string, before?: string, limit = 50): Promise<FetchEmailsResponse> {
-  const params = new URLSearchParams();
-  if (category && category !== "ALL") params.append("category", category);
-  if (before) params.append("before", before);
-  if (limit) params.append("limit", String(limit));
-
-  const qs = params.toString();
-  const path = `/api/emails${qs ? `?${qs}` : ""}`;
-  
-  const raw = await request<FetchEmailsResponse | EmailItem[]>(path);
-  if (Array.isArray(raw)) {
-    return {
-      emails: raw,
-      hasMore: false,
-      nextCursor: null,
-      counts: {},
-    };
-  }
-  return raw;
-=======
 // GET /api/emails — server.ts returns a plain array (`res.json(result.rows)`),
 // no pagination cursor yet, ordered by received_at DESC, capped at 50.
 export function fetchEmails() {
   return request<EmailItem[]>("/api/emails");
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
 }
 
 // GET /api/events — plain array, ordered by start_time ASC, capped at 20.
@@ -73,44 +43,16 @@ export function fetchHealth() {
   return request<{ status: string; db: string; message: string }>("/api/health");
 }
 
-<<<<<<< HEAD
-export interface AuthStatusResponse {
-  connected: boolean;
-  userId?: string;
-  gmailConnected?: boolean;
-  calendarConnected?: boolean;
-}
-
-export function fetchAuthStatus() {
-  return request<AuthStatusResponse>("/api/auth/status");
-}
-
 // POST /api/agent/chat — Groq tool-calling agent with per-user conversation memory.
 export function sendAgentMessage(prompt: string, userId: string) {
   return request<{ reply: AgentMessage; pending_actions?: { actionId: string; tool: string; args: any }[] }>("/api/agent/chat", {
-=======
-// ⚠️ NOT YET IMPLEMENTED in corsair-service/server.ts.
-// The route doesn't exist on the backend yet — this will 404 until you
-// add `app.post('/api/agent/chat', ...)` wired to Groq + the Corsair MCP
-// client, per playbook §8/§13 (Hours 8–14). Kept here so the frontend
-// is ready the moment it exists.
-export function sendAgentMessage(prompt: string, userId: string) {
-  return request<{ reply: AgentMessage }>("/api/agent/chat", {
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
     method: "POST",
     body: JSON.stringify({ prompt, user_id: userId }),
   });
 }
 
-<<<<<<< HEAD
 export function cancelAgentAction(actionId: string) {
   return request<{ status: string; tool: string }>(`/api/agent/cancel/${actionId}`, {
-    method: "POST",
-  });
-}
-
-export function confirmAgentAction(actionId: string) {
-  return request<{ status: string; result: any; tool: string }>(`/api/agent/confirm/${actionId}`, {
     method: "POST",
   });
 }
@@ -132,41 +74,14 @@ export function replyEmail(id: string, body: string) {
 
 // GET /api/search — returns vector + text search results for emails and events.
 export function searchGlobal(query: string) {
-=======
-// ⚠️ NOT YET IMPLEMENTED — no /api/search route in server.ts yet.
-export function search(query: string) {
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
   const qs = `?q=${encodeURIComponent(query)}`;
   return request<{ emails: EmailItem[]; events: CalendarEvent[] }>(`/api/search${qs}`);
 }
 
-<<<<<<< HEAD
 export function search(query: string) {
   return searchGlobal(query);
-}
-
-export async function summarizeEmail(id: string): Promise<{ 
-  summary: { decided: string; open: string; owner: string } 
-}> {
-  return request(`/api/emails/${id}/summarize`, { method: "POST" });
-}
-
-// GET /api/contacts — returns known contacts from KNOWN_CONTACTS env var
-export interface Contact {
-  name: string;
-  email: string;
-}
-
-export function fetchContacts() {
-  return request<{ contacts: Contact[] }>("/api/contacts");
 }
 
 // Realtime: ws.ts mounts a WebSocket server at /ws/updates and broadcasts
 // email/calendar_event/digest updates. See hooks/useWebSocket.ts.
 
-=======
-// ⚠️ NOT YET IMPLEMENTED — server.ts has no WebSocket server mounted yet,
-// only POST /api/webhook (which writes to Postgres but doesn't push to
-// clients). useWebSocket.ts will retry this and simply stay "closed"
-// until you add a `ws` server and broadcast on webhook insert.
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961

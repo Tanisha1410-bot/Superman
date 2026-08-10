@@ -48,12 +48,8 @@ CREATE TABLE IF NOT EXISTS embeddings (
   source_type TEXT,
   source_id UUID,
   embedding VECTOR(768),
-<<<<<<< HEAD
   created_at TIMESTAMPTZ DEFAULT NOW(),
   CONSTRAINT unique_source UNIQUE (source_type, source_id)
-=======
-  created_at TIMESTAMPTZ DEFAULT NOW()
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
 );
 
 -- Agent audit log
@@ -78,7 +74,6 @@ CREATE TABLE IF NOT EXISTS webhook_events (
 -- Indexes for speed
 CREATE INDEX IF NOT EXISTS idx_emails_user_date ON emails(user_id, received_at DESC);
 CREATE INDEX IF NOT EXISTS idx_emails_priority ON emails(priority);
-<<<<<<< HEAD
 CREATE INDEX IF NOT EXISTS idx_events_user_time ON calendar_events(user_id, start_time);
 
 -- ivfflat index for fast vector cosine similarity search.
@@ -86,6 +81,3 @@ CREATE INDEX IF NOT EXISTS idx_events_user_time ON calendar_events(user_id, star
 CREATE INDEX IF NOT EXISTS idx_embeddings_vector
   ON embeddings USING ivfflat (embedding vector_cosine_ops)
   WITH (lists = 100);
-=======
-CREATE INDEX IF NOT EXISTS idx_events_user_time ON calendar_events(user_id, start_time);
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961

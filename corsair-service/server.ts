@@ -1,5 +1,8 @@
 import "dotenv/config";
+<<<<<<< HEAD
 import http from "http";
+=======
+>>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
 
 process.on('unhandledRejection', (reason) => {
     console.error('\n🔴 UNHANDLED REJECTION — this is likely why the server is dying:');
@@ -15,6 +18,7 @@ process.on('exit', (code) => {
 
 import express from 'express';
 import cors from 'cors';
+<<<<<<< HEAD
 import crypto from 'crypto';
 import { toExpressHandler } from 'corsair';
 import { corsair, db } from './corsair';
@@ -29,11 +33,20 @@ const app = express();
 const httpServer = http.createServer(app);
 attachWebSocketServer(httpServer);
 
+=======
+import { toExpressHandler } from 'corsair';
+import { corsair, db } from './corsair';
+import agentChatRouter from './agentChat';
+
+const app = express();
+app.use(express.json());
+>>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
 app.use(cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true
 }));
 
+<<<<<<< HEAD
 // Extend Express Request interface to support req.userId
 declare global {
     namespace Express {
@@ -384,6 +397,8 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
 // JSON body parser middleware for all other routes below
 app.use(express.json());
 
+=======
+>>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
 // ─── HEALTH CHECK ─────────────────────────────────────────
 app.get('/api/health', async (req, res) => {
     try {
@@ -398,6 +413,7 @@ app.get('/api/health', async (req, res) => {
     }
 });
 
+<<<<<<< HEAD
 // ─── CONTACTS ─────────────────────────────────────────────
 app.get('/api/contacts', (req, res) => {
     try {
@@ -520,6 +536,15 @@ app.post('/api/emails/:id/reply', async (req, res) => {
         });
 
         res.json({ status: 'sent', recipient: originalEmail.sender, subject });
+=======
+// ─── EMAILS ───────────────────────────────────────────────
+app.get('/api/emails', async (req, res) => {
+    try {
+        const result = await db.query(
+            `SELECT * FROM emails ORDER BY received_at DESC LIMIT 50`
+        );
+        res.json(result.rows);
+>>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
     } catch (err: any) {
         res.status(500).json({ error: err.message });
     }
@@ -529,8 +554,12 @@ app.post('/api/emails/:id/reply', async (req, res) => {
 app.get('/api/events', async (req, res) => {
     try {
         const result = await db.query(
+<<<<<<< HEAD
             `SELECT * FROM calendar_events WHERE user_id = $1 ORDER BY start_time ASC LIMIT 20`,
             [req.userId]
+=======
+            `SELECT * FROM calendar_events ORDER BY start_time ASC LIMIT 20`
+>>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
         );
         res.json(result.rows);
     } catch (err: any) {
@@ -538,6 +567,7 @@ app.get('/api/events', async (req, res) => {
     }
 });
 
+<<<<<<< HEAD
 // ─── SEARCH ───────────────────────────────────────────────
 app.get('/api/search', async (req, res) => {
     try {
@@ -624,6 +654,51 @@ app.get('/api/search', async (req, res) => {
             emails: Array.from(emailMap.values()),
             events: Array.from(eventMap.values()),
         });
+=======
+// ─── WEBHOOK ──────────────────────────────────────────────
+app.post('/api/webhook', async (req, res) => {
+    try {
+        const payload = req.body;
+        const eventId = payload?.id || payload?.messageId || Date.now().toString();
+
+        const existing = await db.query(
+            `SELECT id FROM webhook_events WHERE payload->>'id' = $1`,
+            [eventId]
+        );
+        if (existing.rows.length > 0) {
+            return res.json({ status: 'duplicate, skipped' });
+        }
+
+        await db.query(
+            `INSERT INTO webhook_events (source, payload) VALUES ($1, $2)`,
+            [payload?.type || 'unknown', JSON.stringify(payload)]
+        );
+
+        if (payload?.type === 'gmail.message.received') {
+            const msg = payload.data;
+            await db.query(
+                `INSERT INTO emails 
+          (gmail_message_id, thread_id, sender, subject, body, received_at)
+         VALUES ($1, $2, $3, $4, $5, NOW())
+         ON CONFLICT (gmail_message_id) DO NOTHING`,
+                [msg.id, msg.threadId, msg.from, msg.subject, msg.body || '']
+            );
+        }
+
+        if (payload?.type === 'googlecalendar.event.created') {
+            const event = payload.data;
+            await db.query(
+                `INSERT INTO calendar_events 
+          (google_event_id, title, description, start_time, end_time)
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (google_event_id) DO NOTHING`,
+                [event.id, event.summary, event.description || '',
+                event.start?.dateTime, event.end?.dateTime]
+            );
+        }
+
+        res.json({ status: 'ok' });
+>>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
     } catch (err: any) {
         res.status(500).json({ error: err.message });
     }
@@ -632,6 +707,7 @@ app.get('/api/search', async (req, res) => {
 // ─── AGENT CHAT ───────────────────────────────────────────
 app.use('/api/agent', agentChatRouter);
 
+<<<<<<< HEAD
 import Groq from "groq-sdk";
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -698,10 +774,16 @@ app.post('/api/emails/:id/summarize', async (req, res) => {
   }
 });
 
+=======
+>>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
 // ─── CORSAIR — SABSE LAST ─────────────────────────────────
 app.use('/api/corsair', toExpressHandler(corsair, { basePath: '/api/corsair' }));
 
 const PORT = process.env.PORT || 3000;
+<<<<<<< HEAD
 httpServer.listen(PORT, () => {
+=======
+app.listen(PORT, () => {
+>>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
     console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

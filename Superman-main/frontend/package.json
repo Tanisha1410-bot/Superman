@@ -11,10 +11,6 @@
   "dependencies": {
     "@types/cors": "^2.8.19",
     "cors": "^2.8.6",
-<<<<<<< HEAD
-    "lucide-react": "^0.383.0",
-=======
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

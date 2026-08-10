@@ -1,36 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
-<<<<<<< HEAD
-import { archiveEmail, fetchCalendarEvents, fetchEmails, replyEmail, fetchAuthStatus, API_URL } from "./api/client";
-=======
-import { fetchCalendarEvents, fetchEmails } from "./api/client";
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
+import { archiveEmail, fetchCalendarEvents, fetchEmails, replyEmail } from "./api/client";
 import { useWebSocket } from "./hooks/useWebSocket";
 import { useHotkeys } from "./hooks/useHotkeys";
 import { Inbox } from "./views/Inbox";
 import { Calendar } from "./views/Calendar";
 import { AgentBar } from "./views/AgentBar";
-<<<<<<< HEAD
 import { Search } from "./views/Search";
-import { ShortcutsModal } from "./views/ShortcutsModal";
-import { Kbd } from "./components/Kbd";
-import { Landing } from "./views/Landing";
-import { HelpCircle } from "lucide-react";
-import type { CalendarEvent, EmailItem } from "./types";
-
-export default function App() {
-  const [showLanding, setShowLanding] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
-
-=======
 import { Kbd } from "./components/Kbd";
 import type { CalendarEvent, EmailItem } from "./types";
 
-// Swap for your real auth/session value once Corsair OAuth is wired in.
 // Swap for your real auth/session value once Corsair OAuth is wired in.
 const USER_ID = "11111111-1111-1111-1111-111111111111";
 
 export default function App() {
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
   const [emails, setEmails] = useState<EmailItem[]>([]);
   const [emailsLoading, setEmailsLoading] = useState(true);
   const [emailsError, setEmailsError] = useState<string | null>(null);
@@ -41,43 +23,16 @@ export default function App() {
 
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
   const [agentOpen, setAgentOpen] = useState(false);
-<<<<<<< HEAD
   const [searchOpen, setSearchOpen] = useState(false);
-  const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
   const [replyingEmailId, setReplyingEmailId] = useState<string | null>(null);
   const [replyBody, setReplyBody] = useState("");
   const [replySending, setReplySending] = useState(false);
 
-  const handleUndo = useCallback(() => {
-    // Global undo handler
-  }, []);
-
-  useEffect(() => {
-    fetchAuthStatus().then((status) => {
-      if (status.connected && status.userId) {
-        setUserId(status.userId);
-        setShowLanding(false);
-      } else {
-        setEmailsLoading(false);
-        setEventsLoading(false);
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    if (showLanding) return;
-
-    // /api/emails returns { emails, hasMore, nextCursor, counts }
-    fetchEmails()
-      .then((res) => setEmails(res.emails))
-=======
-
   useEffect(() => {
     // /api/emails and /api/events return plain arrays (see server.ts)
     fetchEmails()
       .then(setEmails)
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
       .catch((err) => setEmailsError(String(err)))
       .finally(() => setEmailsLoading(false));
 
@@ -85,26 +40,15 @@ export default function App() {
       .then(setEvents)
       .catch((err) => setEventsError(String(err)))
       .finally(() => setEventsLoading(false));
-<<<<<<< HEAD
-  }, [showLanding]);
-
-  // Realtime push via Corsair webhooks -> ws.ts broadcast -> here.
-=======
   }, []);
 
-  // Realtime push — not live yet. server.ts has POST /api/webhook writing to
-  // Postgres but no WebSocket server broadcasting from it. This hook will
-  // keep retrying harmlessly in the background until that exists; add a
-  // `ws` server in corsair-service and broadcast on webhook insert to light
-  // this up.
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
+  // Realtime push via Corsair webhooks -> ws.ts broadcast -> here.
   const wsState = useWebSocket(
     useCallback((update) => {
       if (update.type === "email") {
         setEmails((prev) => [update.data, ...prev.filter((e) => e.id !== update.data.id)]);
       } else if (update.type === "calendar_event") {
         setEvents((prev) => [update.data, ...prev.filter((e) => e.id !== update.data.id)]);
-<<<<<<< HEAD
       } else if (update.type === "digest") {
         if (update.data.emails && update.data.emails.length > 0) {
           setEmails((prev) => {
@@ -118,15 +62,12 @@ export default function App() {
             return [...update.data.events, ...prev.filter((e) => !incomingIds.has(e.id))];
           });
         }
-=======
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
       }
     }, [])
   );
 
-<<<<<<< HEAD
   const handleArchiveSelected = useCallback(async () => {
-    if (!selectedEmailId || agentOpen || searchOpen || shortcutsOpen || replyingEmailId) return;
+    if (!selectedEmailId || agentOpen || searchOpen || replyingEmailId) return;
     const targetId = selectedEmailId;
     setEmails((prev) => prev.filter((e) => e.id !== targetId));
     setSelectedEmailId(null);
@@ -135,13 +76,13 @@ export default function App() {
     } catch (err) {
       console.error("Failed to archive email:", err);
     }
-  }, [selectedEmailId, agentOpen, searchOpen, shortcutsOpen, replyingEmailId]);
+  }, [selectedEmailId, agentOpen, searchOpen, replyingEmailId]);
 
   const handleOpenReply = useCallback(() => {
-    if (!selectedEmailId || agentOpen || searchOpen || shortcutsOpen) return;
+    if (!selectedEmailId || agentOpen || searchOpen) return;
     setReplyingEmailId(selectedEmailId);
     setReplyBody("");
-  }, [selectedEmailId, agentOpen, searchOpen, shortcutsOpen]);
+  }, [selectedEmailId, agentOpen, searchOpen]);
 
   const handleSendReply = useCallback(async () => {
     if (!replyingEmailId || !replyBody.trim() || replySending) return;
@@ -160,8 +101,6 @@ export default function App() {
   useHotkeys([
     { key: "k", meta: true, handler: () => setAgentOpen(true) },
     { key: "/", handler: () => setSearchOpen(true) },
-    { key: "?", handler: () => setShortcutsOpen((prev) => !prev) },
-    { key: "z", meta: true, handler: handleUndo },
     { key: "e", handler: handleArchiveSelected },
     { key: "r", handler: handleOpenReply },
     {
@@ -170,8 +109,6 @@ export default function App() {
       handler: () => {
         if (replyingEmailId) {
           setReplyingEmailId(null);
-        } else if (shortcutsOpen) {
-          setShortcutsOpen(false);
         } else if (searchOpen) {
           setSearchOpen(false);
         } else if (agentOpen) {
@@ -181,23 +118,11 @@ export default function App() {
     },
   ]);
 
-  if (showLanding) {
-    return <Landing onConnect={() => window.location.href = `${API_URL}/api/auth/connect`} />;
-  }
-
-=======
-  useHotkeys([
-    { key: "k", meta: true, handler: () => setAgentOpen(true) },
-    { key: "Escape", allowInFormFields: true, handler: () => setAgentOpen(false) },
-  ]);
-
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
   return (
     <div className="flex h-screen flex-col">
       <header className="flex items-center justify-between border-b border-ink-700 px-4 py-3">
         <div className="flex items-center gap-3">
-<<<<<<< HEAD
-          <span className="font-display text-lg font-semibold text-mist-50">Chrono</span>
+          <span className="font-display text-lg font-semibold text-mist-50">Corsair</span>
           <span
             className={`h-1.5 w-1.5 rounded-full ${
               wsState === "open" ? "bg-moss-400" : "bg-amber-400"
@@ -206,16 +131,6 @@ export default function App() {
           />
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShortcutsOpen(true)}
-            className="flex items-center gap-2 rounded-lg border border-ink-600 bg-ink-800 px-3 py-1.5
-                       text-sm text-mist-400 transition-colors hover:border-ink-500 hover:text-mist-50"
-            title="Keyboard Shortcuts (?)"
-          >
-            <HelpCircle className="h-4 w-4" />
-            Shortcuts
-            <Kbd keys={["?"]} />
-          </button>
           <button
             onClick={() => setSearchOpen(true)}
             className="flex items-center gap-2 rounded-lg border border-ink-600 bg-ink-800 px-3 py-1.5
@@ -233,23 +148,6 @@ export default function App() {
             <Kbd keys={["⌘", "K"]} />
           </button>
         </div>
-=======
-          <span className="font-display text-lg font-semibold text-mist-50">Corsair</span>
-          <span
-            className={`h-1.5 w-1.5 rounded-full ${wsState === "open" ? "bg-moss-400" : "bg-amber-400"
-              }`}
-            title={wsState === "open" ? "Realtime connected" : "Realtime not wired up yet"}
-          />
-        </div>
-        <button
-          onClick={() => setAgentOpen(true)}
-          className="flex items-center gap-2 rounded-lg border border-ink-600 bg-ink-800 px-3 py-1.5
-                     text-sm text-mist-400 transition-colors hover:border-ink-500 hover:text-mist-50"
-        >
-          Ask the agent
-          <Kbd keys={["⌘", "K"]} />
-        </button>
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
       </header>
 
       <div className="flex min-h-0 flex-1">
@@ -260,15 +158,12 @@ export default function App() {
             error={emailsError}
             selectedId={selectedEmailId}
             onSelect={setSelectedEmailId}
-<<<<<<< HEAD
             replyingId={replyingEmailId}
             replyBody={replyBody}
             onReplyBodyChange={setReplyBody}
             onSendReply={handleSendReply}
             onCancelReply={() => setReplyingEmailId(null)}
             replySending={replySending}
-=======
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
           />
         </main>
         <aside className="w-80 shrink-0 overflow-y-auto">
@@ -276,21 +171,8 @@ export default function App() {
         </aside>
       </div>
 
-<<<<<<< HEAD
       <Search open={searchOpen} onClose={() => setSearchOpen(false)} />
-      <ShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
-      <AgentBar
-        open={agentOpen}
-        onClose={() => setAgentOpen(false)}
-        userId={userId || ""}
-      />
-    </div>
-  );
-}
-
-=======
       <AgentBar open={agentOpen} onClose={() => setAgentOpen(false)} userId={USER_ID} />
     </div>
   );
 }
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961

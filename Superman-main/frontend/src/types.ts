@@ -33,34 +33,24 @@ export interface CalendarEvent {
   indexed: boolean;
 }
 
-<<<<<<< HEAD
 export interface PendingActionItem {
   actionId: string;
   tool: string;
   args: any;
 }
 
-=======
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
 export interface AgentMessage {
   id: string;
   role: "user" | "agent";
   content: string;
   created_at: string;
-<<<<<<< HEAD
   pending_actions?: PendingActionItem[];
-=======
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
 }
 
 export type RealtimeUpdate =
   | { type: "email"; data: EmailItem }
-<<<<<<< HEAD
   | { type: "calendar_event"; data: CalendarEvent }
   | { type: "digest"; data: { emails: EmailItem[]; events: CalendarEvent[] } };
-=======
-  | { type: "calendar_event"; data: CalendarEvent };
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
 
 /** Splits Gmail's raw "Name <email@x.com>" sender string into parts. */
 export function parseSender(raw: string): { name: string; email: string } {

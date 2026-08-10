@@ -15,18 +15,12 @@
     "@corsair-dev/github": "^0.1.15",
     "@corsair-dev/gmail": "^0.1.4",
     "@corsair-dev/googlecalendar": "^0.1.5",
-<<<<<<< HEAD
     "@google/genai": "^2.16.0",
-=======
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^26.1.2",
     "@types/pg": "^8.20.4",
-<<<<<<< HEAD
     "@types/ws": "^8.18.1",
-=======
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
     "cors": "^2.8.6",
     "corsair": "^0.1.113",
     "dotenv": "^17.4.2",
@@ -34,19 +28,11 @@
     "groq-sdk": "^1.5.0",
     "pg": "^8.22.0",
     "tsx": "^4.23.11",
-<<<<<<< HEAD
     "typescript": "^7.0.2",
     "ws": "^8.21.3"
-=======
-    "typescript": "^7.0.2"
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
   },
   "devDependencies": {
     "@corsair-dev/cli": "^0.1.19",
     "@corsair-dev/studio": "^0.1.6"
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 299f1769e56c4a9c417f208c01eb737f915e0961
